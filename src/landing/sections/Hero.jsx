@@ -6,7 +6,7 @@ import { BRANDS } from '../data.js';
 import { monoCaps } from '../typeStyles.js';
 
 export default function Hero({ askBrand, brand, onBrand, waitlist }) {
-  const { email, submitted, onEmail, onSubmit } = waitlist;
+  const { email, submitted, sending, error, onEmail, onSubmit } = waitlist;
 
   const confirmLine = email
     ? `We'll email ${email} when the beta opens.`
@@ -99,6 +99,8 @@ export default function Hero({ askBrand, brand, onBrand, waitlist }) {
                     aria-label="Email address"
                     value={email}
                     onChange={onEmail}
+                    disabled={sending}
+                    error={error}
                     style={{ flex: '1 1 190px', minWidth: 0 }}
                   />
 
@@ -113,8 +115,14 @@ export default function Hero({ askBrand, brand, onBrand, waitlist }) {
                     />
                   ) : null}
 
-                  <Button variant="accent" size="md" type="submit" iconRight="chevron-right">
-                    Join the waitlist
+                  <Button
+                    variant="accent"
+                    size="md"
+                    type="submit"
+                    disabled={sending}
+                    iconRight={sending ? undefined : 'chevron-right'}
+                  >
+                    {sending ? 'Joining\u2026' : 'Join the waitlist'}
                   </Button>
                 </div>
 

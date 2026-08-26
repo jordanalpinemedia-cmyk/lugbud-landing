@@ -1,20 +1,62 @@
 import { useState } from 'react';
 
 /**
- * Local-only waitlist form state. The real page would POST the address; here
- * submitting just flips to the confirmation panel.
+ * Waitlist form state. Posts to /api/waitlist, which forwards to Resend with
+ * the API key held server-side.
+ *
+ * `getPayload` supplies extra fields at submit time — the hero form uses it to
+ * send the selected brand. It is read on submit, not on mount, so it always
+ * sees current state.
  */
-export function useWaitlist() {
+export function useWaitlist({ getPayload } = {}) {
   const [email, setEmail] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState('idle'); // idle | sending | done | error
+  const [error, setError] = useState(null);
+
+  const onEmail = (e) => {
+    setEmail(e.target.value);
+    // Clear a previous failure as soon as they start correcting it.
+    if (status === 'error') {
+      setStatus('idle');
+      setError(null);
+    }
+  };
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    if (status === 'sending') return;
+
+    setStatus('sending');
+    setError(null);
+
+    try {
+      const response = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, ...(getPayload ? getPayload() : null) }),
+      });
+
+      const body = await response.json().catch(() => ({}));
+
+      if (response.ok) {
+        setStatus('done');
+        return;
+      }
+
+      setError(body.error || "We couldn't save that just now. Try again in a moment.");
+      setStatus('error');
+    } catch {
+      setError('That request did not go through. Check your connection and try again.');
+      setStatus('error');
+    }
+  };
 
   return {
     email,
-    submitted,
-    onEmail: (e) => setEmail(e.target.value),
-    onSubmit: (e) => {
-      e.preventDefault();
-      setSubmitted(true);
-    },
+    error,
+    onEmail,
+    onSubmit,
+    sending: status === 'sending',
+    submitted: status === 'done',
   };
 }

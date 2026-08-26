@@ -84,5 +84,35 @@ The bundle also contains UI kits (`ui_kits/app/AppChrome`,
 `ui_kits/app/Screens`, `ui_kits/website/*`) that the landing page doesn't
 reference and that the bundle doesn't export. They were left behind.
 
-Content in `src/landing/data.js` is the design's demo copy. Both waitlist forms
-are local-only — submitting flips to the confirmation panel without a request.
+Content in `src/landing/data.js` is the design's demo copy.
+
+## Waitlist
+
+Both forms post to `api/waitlist.js`, a Vercel serverless function that creates
+a Resend contact. The function exists so `RESEND_API_KEY` stays server-side —
+anything in the React bundle is public.
+
+Requires one environment variable:
+
+| Variable | Where |
+| --- | --- |
+| `RESEND_API_KEY` | Vercel > Settings > Environment Variables |
+
+The key needs **Full access**. `sending_access` only permits sending email, and
+adding a contact is not a send.
+
+Resend contacts are global and keyed by email, so no audience or segment id is
+needed. The hero form also sends the selected brand as a custom `properties`
+field; the footer form is email only. Duplicate signups are treated as success.
+
+Running locally: `npm run dev` serves the site but **not** the function, so
+submitting hits the error path. Use `vercel dev` to exercise the real thing, or
+test in a Vercel preview deployment.
+
+### Not yet handled
+
+- **No rate limiting.** `/api/waitlist` is public and writes to Resend on every
+  call. Worth adding Vercel Bot Protection or a honeypot field before promoting
+  the URL widely.
+- **No confirmation email.** Sending anything from Resend requires a verified
+  domain; storing contacts does not.

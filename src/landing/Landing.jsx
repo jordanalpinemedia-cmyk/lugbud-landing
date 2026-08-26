@@ -26,7 +26,8 @@ export default function Landing({ lifespanMiles = 500, askBrand = true, showStat
   const [selected, setSelected] = useState(0);
   const [brand, setBrand] = useState(BRANDS[0]);
 
-  const heroWaitlist = useWaitlist();
+  // The hero form also captures the brand picker; the footer form is email only.
+  const heroWaitlist = useWaitlist({ getPayload: () => ({ brand }) });
   const footerWaitlist = useWaitlist();
 
   const goWaitlist = () => {

@@ -4,7 +4,7 @@ import Input from '../../ds/forms/Input.jsx';
 import { monoCaps } from '../typeStyles.js';
 
 export default function Waitlist({ waitlist }) {
-  const { email, submitted, onEmail, onSubmit } = waitlist;
+  const { email, submitted, sending, error, onEmail, onSubmit } = waitlist;
   const confirmLine = email ? `You're on the list — ${email}` : "You're on the list.";
 
   return (
@@ -76,14 +76,25 @@ export default function Waitlist({ waitlist }) {
               aria-label="Email address"
               value={email}
               onChange={onEmail}
+              disabled={sending}
               fullWidth={false}
               style={{ flex: '0 1 280px' }}
             />
-            <Button variant="primary" size="md" type="submit" iconRight="chevron-right">
-              Join the waitlist
+            <Button
+              variant="primary"
+              size="md"
+              type="submit"
+              disabled={sending}
+              iconRight={sending ? undefined : 'chevron-right'}
+            >
+              {sending ? 'Joining\u2026' : 'Join the waitlist'}
             </Button>
           </form>
         )}
+
+        {error ? (
+          <div style={{ marginTop: 14, fontSize: 13, color: 'var(--status-danger)' }}>{error}</div>
+        ) : null}
 
         <div style={monoCaps(10, 'var(--text-faint)', { marginTop: 18 })}>
           read-only strava access · cancel any time · no ads

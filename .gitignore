@@ -12,6 +12,11 @@ dist
 *.log
 npm-debug.log*
 
+# secrets — never commit real keys
+.env
+.env.local
+.env.*.local
+
 # local + editor
 .DS_Store
 *.local
