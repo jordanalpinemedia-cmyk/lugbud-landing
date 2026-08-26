@@ -28,7 +28,15 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: GENERIC_FAILURE });
   }
 
-  const { email, brand } = req.body ?? {};
+  const { email, brand, website } = req.body ?? {};
+
+  // Honeypot. The form renders `website` off-screen and no human ever fills
+  // it, so anything here is an automated form-filler. Answer exactly as we
+  // would on success — telling a bot it was caught only helps it adapt.
+  if (typeof website === 'string' && website.trim()) {
+    console.warn('waitlist: honeypot triggered, discarding');
+    return res.status(200).json({ ok: true, brand: 'none' });
+  }
 
   if (!looksLikeEmail(email)) {
     return res.status(400).json({ error: "That doesn't look like an email address." });

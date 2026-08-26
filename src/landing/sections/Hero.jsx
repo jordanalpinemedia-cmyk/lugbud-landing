@@ -2,11 +2,12 @@ import Button from '../../ds/core/Button.jsx';
 import Icon from '../../ds/core/Icon.jsx';
 import Input from '../../ds/forms/Input.jsx';
 import Select from '../../ds/forms/Select.jsx';
+import HoneypotField from '../HoneypotField.jsx';
 import { BRANDS } from '../data.js';
 import { monoCaps } from '../typeStyles.js';
 
 export default function Hero({ askBrand, brand, onBrand, waitlist }) {
-  const { email, submitted, sending, error, onEmail, onSubmit } = waitlist;
+  const { email, submitted, sending, error, onEmail, onSubmit, trapProps } = waitlist;
 
   const confirmLine = email
     ? `We'll email ${email} when the beta opens.`
@@ -91,6 +92,7 @@ export default function Hero({ askBrand, brand, onBrand, waitlist }) {
                 onSubmit={onSubmit}
                 style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 4, maxWidth: 470 }}
               >
+                <HoneypotField trapProps={trapProps} />
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                   <Input
                     type="email"

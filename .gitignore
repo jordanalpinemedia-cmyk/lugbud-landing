@@ -12,10 +12,11 @@ dist
 *.log
 npm-debug.log*
 
-# secrets — never commit real keys
-.env
-.env.local
-.env.*.local
+# secrets — never commit real keys.
+# Broad glob so a stray .env.production or .env.staging can't slip through;
+# the checked-in template is the one deliberate exception.
+.env*
+!.env.example
 
 # local + editor
 .DS_Store

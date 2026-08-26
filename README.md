@@ -116,10 +116,28 @@ Running locally: `npm run dev` serves the site but **not** the function, so
 submitting hits the error path. Use `vercel dev` to exercise the real thing, or
 test in a Vercel preview deployment.
 
+### Abuse protection
+
+Two layers, because they catch different things.
+
+**Honeypot (in code).** Both forms render an off-screen `website` input that no
+human ever fills. `api/waitlist.js` discards any submission carrying a value,
+answering exactly as it would on success — telling a bot it was caught only
+helps it adapt. Catches naive form-fillers, including slow ones a rate limit
+would never notice.
+
+**WAF rate limit (configured in Vercel).** Set in the dashboard under Firewall,
+not in this repo, so it is not version-controlled — check there before assuming
+it exists. Runs at the edge, so blocked requests never reach the function and
+are not billed.
+
+Current rule: `path` starts with `/api/waitlist`, 10 requests per 60s, keyed by
+IP. Hobby allows one rate-limit rule per project, fixed-window, IP or JA4 key.
+
+Rate-limit counters are per region, so distributed traffic can exceed the
+configured limit by roughly the number of regions it arrives from.
+
 ### Not yet handled
 
-- **No rate limiting.** `/api/waitlist` is public and writes to Resend on every
-  call. Worth adding Vercel Bot Protection or a honeypot field before promoting
-  the URL widely.
 - **No confirmation email.** Sending anything from Resend requires a verified
   domain; storing contacts does not.

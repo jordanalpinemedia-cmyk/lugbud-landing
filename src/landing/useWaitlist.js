@@ -13,6 +13,10 @@ export function useWaitlist({ getPayload } = {}) {
   const [status, setStatus] = useState('idle'); // idle | sending | done | error
   const [error, setError] = useState(null);
 
+  // Honeypot: rendered off-screen and hidden from assistive tech, so only an
+  // automated form-filler ever populates it. The server discards those.
+  const [website, setWebsite] = useState('');
+
   const onEmail = (e) => {
     setEmail(e.target.value);
     // Clear a previous failure as soon as they start correcting it.
@@ -33,7 +37,7 @@ export function useWaitlist({ getPayload } = {}) {
       const response = await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, ...(getPayload ? getPayload() : null) }),
+        body: JSON.stringify({ email, website, ...(getPayload ? getPayload() : null) }),
       });
 
       const body = await response.json().catch(() => ({}));
@@ -56,6 +60,11 @@ export function useWaitlist({ getPayload } = {}) {
     error,
     onEmail,
     onSubmit,
+    trapProps: {
+      name: 'website',
+      value: website,
+      onChange: (e) => setWebsite(e.target.value),
+    },
     sending: status === 'sending',
     submitted: status === 'done',
   };

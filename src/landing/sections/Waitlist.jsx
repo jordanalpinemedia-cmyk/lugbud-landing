@@ -1,10 +1,11 @@
 import Button from '../../ds/core/Button.jsx';
 import Icon from '../../ds/core/Icon.jsx';
 import Input from '../../ds/forms/Input.jsx';
+import HoneypotField from '../HoneypotField.jsx';
 import { monoCaps } from '../typeStyles.js';
 
 export default function Waitlist({ waitlist }) {
-  const { email, submitted, sending, error, onEmail, onSubmit } = waitlist;
+  const { email, submitted, sending, error, onEmail, onSubmit, trapProps } = waitlist;
   const confirmLine = email ? `You're on the list — ${email}` : "You're on the list.";
 
   return (
@@ -69,6 +70,7 @@ export default function Waitlist({ waitlist }) {
             onSubmit={onSubmit}
             style={{ display: 'flex', gap: 8, justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', marginTop: 28 }}
           >
+            <HoneypotField trapProps={trapProps} />
             <Input
               type="email"
               icon="mail"
