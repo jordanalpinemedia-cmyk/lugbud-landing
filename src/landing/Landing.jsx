@@ -63,7 +63,7 @@ export default function Landing({ lifespanMiles = 500, askBrand = true, showStat
 
       <Dashboard selected={selected} onSelect={setSelected} defaultLifespan={lifespanMiles} />
 
-      <Strava />
+      <Strava onJoinWaitlist={goWaitlist} />
 
       <Waitlist waitlist={footerWaitlist} />
 

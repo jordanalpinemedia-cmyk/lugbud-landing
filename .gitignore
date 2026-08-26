@@ -21,3 +21,9 @@ npm-debug.log*
 # local + editor
 .DS_Store
 *.local
+
+# agent tooling installed by integrations (machine-local, not project source).
+# Scoped to .claude/skills so the tracked .claude/launch.json survives.
+.agents
+.claude/skills
+skills-lock.json
