@@ -102,8 +102,15 @@ The key needs **Full access**. `sending_access` only permits sending email, and
 adding a contact is not a send.
 
 Resend contacts are global and keyed by email, so no audience or segment id is
-needed. The hero form also sends the selected brand as a custom `properties`
-field; the footer form is email only. Duplicate signups are treated as success.
+needed. Duplicate signups are treated as success.
+
+The hero form also sends the selected brand as a custom `properties` field.
+Resend requires a custom property to be **defined on the account before** any
+contact can carry it — otherwise it rejects the entire request. Create a
+`brand` property (Audience > Properties, or `POST /contact-properties`) to
+capture it. If it is missing the function logs the rejection, retries without
+the property, and still saves the address; brand is best-effort, the email is
+not.
 
 Running locally: `npm run dev` serves the site but **not** the function, so
 submitting hits the error path. Use `vercel dev` to exercise the real thing, or

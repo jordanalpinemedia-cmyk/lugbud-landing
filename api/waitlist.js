@@ -42,15 +42,30 @@ export default async function handler(req, res) {
     contact.properties = { brand: brand.trim() };
   }
 
-  try {
-    const response = await fetch(RESEND_CONTACTS, {
+  const createContact = (body) =>
+    fetch(RESEND_CONTACTS, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(contact),
+      body: JSON.stringify(body),
     });
+
+  try {
+    let response = await createContact(contact);
+
+    // Resend rejects the whole request if a custom property is not already
+    // defined on the account. Brand is a nice-to-have; the email address is
+    // the point. Drop the property and retry rather than lose the signup.
+    if (!response.ok && contact.properties) {
+      console.error(
+        `waitlist: create with properties failed (${response.status}), retrying without`,
+        await response.text(),
+      );
+      const { properties, ...withoutProperties } = contact;
+      response = await createContact(withoutProperties);
+    }
 
     if (response.ok) {
       return res.status(200).json({ ok: true });
