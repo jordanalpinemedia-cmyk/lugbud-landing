@@ -2,10 +2,8 @@ import Button from '../../ds/core/Button.jsx';
 import Icon from '../../ds/core/Icon.jsx';
 import { STRAVA_ROWS } from '../data.js';
 import { monoCaps } from '../typeStyles.js';
-import { useStrava } from '../useStrava.js';
-
-export default function Strava({ onJoinWaitlist }) {
-  const { loading, connected, firstname, shoes, outcome, connect, disconnect } = useStrava();
+export default function Strava({ strava, onJoinWaitlist }) {
+  const { loading, connected, firstname, locker, outcome, connect, disconnect } = strava;
   return (
     <section id="strava" style={{ background: 'var(--surface-inverse)', padding: 'var(--section-y) 0' }}>
       <div className="lb-wrap lb-split-grid">
@@ -72,7 +70,7 @@ export default function Strava({ onJoinWaitlist }) {
                     <Icon name="check" size={18} />
                   </span>
                   Connected{firstname ? ` as ${firstname}` : ''}
-                  {shoes.length ? ` · ${shoes.length} pair${shoes.length === 1 ? '' : 's'}` : ''}
+                  {locker.length ? ` · ${locker.length} pair${locker.length === 1 ? '' : 's'}` : ''}
                 </span>
                 <Button variant="ghost" size="md" onClick={disconnect} disabled={loading} style={{ color: 'var(--stone-4)' }}>
                   Disconnect

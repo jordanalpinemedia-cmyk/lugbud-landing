@@ -6,8 +6,17 @@ import WearMeter, { WEAR_COLOR, WEAR_LABEL, wearStateFor } from '../../ds/tracki
 import { FEATURED_DEAL, LOCKER, MILES_THIS_YEAR } from '../data.js';
 import { monoCaps } from '../typeStyles.js';
 
-export default function Dashboard({ selected, onSelect, defaultLifespan }) {
-  const sel = LOCKER[selected];
+export default function Dashboard({ selected, onSelect, defaultLifespan, strava }) {
+  const isLive = Boolean(strava?.connected);
+  const locker = isLive ? strava.locker : LOCKER;
+  const milesThisYear = isLive
+    ? Number(strava.milesThisYear ?? 0).toLocaleString()
+    : MILES_THIS_YEAR;
+
+  // A connected athlete with no shoes on Strava is a real state, not a reason
+  // to quietly fall back to sample data.
+  const empty = isLive && locker.length === 0;
+  const sel = empty ? null : locker[Math.min(selected, locker.length - 1)];
 
   return (
     <section id="dashboard" style={{ padding: 'var(--section-y) 0' }}>
@@ -45,20 +54,27 @@ export default function Dashboard({ selected, onSelect, defaultLifespan }) {
                 </span>
               </div>
 
-              <div style={{ ...monoCaps(10, 'var(--moss-3)'), display: 'flex', alignItems: 'center', gap: 7 }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--moss-3)' }} />
-                strava synced
-              </div>
+              {isLive ? (
+                <div style={{ ...monoCaps(10, 'var(--moss-3)'), display: 'flex', alignItems: 'center', gap: 7 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--moss-3)' }} />
+                  {strava.syncing ? 'syncing…' : 'strava synced'}
+                </div>
+              ) : (
+                <div style={{ ...monoCaps(10, 'var(--text-faint)'), display: 'flex', alignItems: 'center', gap: 7 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--stone-4)' }} />
+                  sample data
+                </div>
+              )}
             </div>
 
-            {LOCKER.map((s, i) => {
+            {locker.map((s, i) => {
               const life = s.life ?? defaultLifespan;
               const state = wearStateFor(s.miles, life);
               const isSelected = i === selected;
 
               return (
                 <div
-                  key={s.name}
+                  key={s.id ?? s.name}
                   className="lb-locker-row"
                   role="button"
                   tabIndex={0}
@@ -106,59 +122,91 @@ export default function Dashboard({ selected, onSelect, defaultLifespan }) {
             })}
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 22px' }}>
-              <span style={monoCaps(10, 'var(--text-faint)')}>{MILES_THIS_YEAR} mi logged this year</span>
-              <Button variant="ghost" size="sm" icon="plus">
-                Add a pair
-              </Button>
+              <span style={monoCaps(10, 'var(--text-faint)')}>{milesThisYear} mi logged this year</span>
+              {isLive ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  icon="activity"
+                  onClick={strava.sync}
+                  disabled={strava.syncing}
+                >
+                  {strava.syncing ? 'Syncing…' : 'Sync now'}
+                </Button>
+              ) : (
+                <Button variant="ghost" size="sm" icon="plus">
+                  Add a pair
+                </Button>
+              )}
             </div>
           </div>
 
           {/* --- selected pair + its deal ------------------------------ */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div
-              style={{
-                background: 'var(--surface-card)',
-                border: '1px solid var(--border-hairline)',
-                borderRadius: 'var(--radius-panel)',
-                padding: 24,
-              }}
-            >
-              <div style={monoCaps(10)}>{sel.surface}</div>
-
+            {empty ? (
               <div
                 style={{
-                  fontFamily: 'var(--font-display)',
-                  fontWeight: 700,
-                  fontSize: 'var(--type-heading)',
-                  letterSpacing: 'var(--ls-title)',
-                  color: 'var(--text-strong)',
-                  marginTop: 8,
+                  background: 'var(--surface-card)',
+                  border: '1px dashed var(--stone-4)',
+                  borderRadius: 'var(--radius-panel)',
+                  padding: 32,
+                  textAlign: 'center',
                 }}
               >
-                {sel.name}
+                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 17, color: 'var(--text-strong)' }}>
+                  No shoes on Strava yet
+                </div>
+                <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 8, lineHeight: 1.45 }}>
+                  Add a pair of shoes to your gear in Strava, then hit Sync now. Your
+                  mileage follows automatically from there.
+                </p>
               </div>
+            ) : (
+              <div
+                style={{
+                  background: 'var(--surface-card)',
+                  border: '1px solid var(--border-hairline)',
+                  borderRadius: 'var(--radius-panel)',
+                  padding: 24,
+                }}
+              >
+                <div style={monoCaps(10)}>{sel.surface}</div>
 
-              <div style={{ marginTop: 20 }}>
-                <WearMeter miles={sel.miles} lifespan={sel.life ?? defaultLifespan} size="lg" />
+                <div
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontWeight: 700,
+                    fontSize: 'var(--type-heading)',
+                    letterSpacing: 'var(--ls-title)',
+                    color: 'var(--text-strong)',
+                    marginTop: 8,
+                  }}
+                >
+                  {sel.name}
+                </div>
+
+                <div style={{ marginTop: 20 }}>
+                  <WearMeter miles={sel.miles} lifespan={sel.life ?? defaultLifespan} size="lg" />
+                </div>
+
+                <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 16, lineHeight: 1.45 }}>{sel.note}</p>
+
+                <div style={{ height: 1, background: 'var(--border-quiet)', margin: '20px 0 14px' }} />
+
+                <div style={monoCaps(10)}>from strava</div>
+
+                {sel.runs.map((r) => (
+                  <MileageRow
+                    key={`${r.d}-${r.t}`}
+                    date={r.d}
+                    distance={r.mi}
+                    shoe={r.t}
+                    surface={r.surface}
+                    pace={r.pace}
+                  />
+                ))}
               </div>
-
-              <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 16, lineHeight: 1.45 }}>{sel.note}</p>
-
-              <div style={{ height: 1, background: 'var(--border-quiet)', margin: '20px 0 14px' }} />
-
-              <div style={monoCaps(10)}>from strava</div>
-
-              {sel.runs.map((r) => (
-                <MileageRow
-                  key={`${r.d}-${r.t}`}
-                  date={r.d}
-                  distance={r.mi}
-                  shoe={r.t}
-                  surface={r.surface}
-                  pace={r.pace}
-                />
-              ))}
-            </div>
+            )}
 
             <div style={{ background: 'var(--surface-inverse)', borderRadius: 'var(--radius-panel)', padding: 22 }}>
               <div style={{ ...monoCaps(10, 'var(--volt-3)'), display: 'flex', alignItems: 'center', gap: 8 }}>

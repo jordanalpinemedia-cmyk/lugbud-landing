@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { BRANDS } from './data.js';
 import { useWaitlist } from './useWaitlist.js';
+import { useStrava } from './useStrava.js';
 import Dashboard from './sections/Dashboard.jsx';
 import Deals from './sections/Deals.jsx';
 import Hero from './sections/Hero.jsx';
@@ -27,6 +28,10 @@ export default function Landing({ lifespanMiles = 500, askBrand = true, showStat
   const [brand, setBrand] = useState(BRANDS[0]);
 
   // The hero form also captures the brand picker; the footer form is email only.
+  // Feeds the rated lifespan through to the live locker, so the prop drives
+  // real data and not only the demo rows.
+  const strava = useStrava({ lifespan: lifespanMiles });
+
   const heroWaitlist = useWaitlist({ getPayload: () => ({ brand }) });
   const footerWaitlist = useWaitlist();
 
@@ -61,9 +66,14 @@ export default function Landing({ lifespanMiles = 500, askBrand = true, showStat
 
       <HowItWorks />
 
-      <Dashboard selected={selected} onSelect={setSelected} defaultLifespan={lifespanMiles} />
+      <Dashboard
+        selected={selected}
+        onSelect={setSelected}
+        defaultLifespan={lifespanMiles}
+        strava={strava}
+      />
 
-      <Strava onJoinWaitlist={goWaitlist} />
+      <Strava strava={strava} onJoinWaitlist={goWaitlist} />
 
       <Waitlist waitlist={footerWaitlist} />
 
