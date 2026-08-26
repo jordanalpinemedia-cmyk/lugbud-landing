@@ -1,0 +1,128 @@
+@import url("./tokens/fonts.css");
+@import url("./tokens/colors.css");
+@import url("./tokens/typography.css");
+@import url("./tokens/spacing.css");
+@import url("./tokens/radius.css");
+@import url("./tokens/elevation.css");
+@import url("./tokens/motion.css");
+@import url("./tokens/base.css");
+
+/* ---------------------------------------------------------------
+   Landing page layout.
+
+   The design canvas is authored at desktop width with fixed
+   multi-column grids. The column counts below match it exactly at
+   >= 960px; the breakpoints collapse them for narrower viewports.
+   --------------------------------------------------------------- */
+
+/* Nav / footer links opt out of the global underlined-link treatment. */
+.lb-navlink {
+  border-bottom: none;
+  color: var(--text-body);
+  font-size: 14px;
+}
+.lb-navlink:hover {
+  color: var(--clay-4);
+  border-bottom: none;
+}
+
+/* Page gutter, 48px on the canvas, tightened on small screens. */
+.lb-wrap {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--gutter-page-lg);
+  width: 100%;
+}
+
+@keyframes lb-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* --- grids ------------------------------------------------------ */
+
+.lb-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr);
+  gap: 56px;
+  align-items: center;
+}
+
+.lb-dash-grid {
+  display: grid;
+  grid-template-columns: 1.18fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.lb-split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.lb-footer-grid {
+  display: grid;
+  grid-template-columns: 1.6fr repeat(3, 1fr);
+  gap: 32px;
+}
+
+.lb-locker-row {
+  display: grid;
+  grid-template-columns: 1fr 152px 78px;
+  gap: 16px;
+  align-items: center;
+}
+
+.lb-autofit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.lb-autofit-sm {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+/* --- breakpoints ------------------------------------------------ */
+
+@media (max-width: 960px) {
+  .lb-hero-grid,
+  .lb-dash-grid,
+  .lb-split-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+  .lb-footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px;
+  }
+  .lb-navlink--desktop {
+    display: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .lb-wrap {
+    padding: 0 var(--gutter-page);
+  }
+  .lb-locker-row {
+    grid-template-columns: 1fr 110px;
+    row-gap: 10px;
+  }
+  .lb-locker-row > :last-child {
+    grid-column: 1 / -1;
+    text-align: left !important;
+  }
+  .lb-footer-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

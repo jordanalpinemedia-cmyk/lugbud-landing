@@ -1,0 +1,53 @@
+:root{
+/* --- base ramps --- */
+--ink-1:#12100E;--ink-2:#231F1B;--ink-3:#3A342E;
+--stone-1:#F7F5F1;--stone-2:#EFEBE4;--stone-3:#E2DCD2;--stone-4:#CFC7BA;--stone-5:#A79E90;--stone-6:#7A7267;
+--white:#FFFFFF;
+--volt-1:#EDFCB5;--volt-2:#DCF873;--volt-3:#CDEF3C;--volt-4:#A8C82A;--volt-5:#6F8517;
+--clay-1:#F7E3DA;--clay-2:#E58A5E;--clay-3:#C4552B;--clay-4:#8E3818;
+--moss-1:#DDE7DF;--moss-2:#4E6F5C;--moss-3:#2F4A3C;--moss-4:#1D2E26;
+--amber-1:#FAEBC7;--amber-2:#E0A32B;--amber-3:#9C6B10;
+
+/* --- semantic surfaces --- */
+--surface-page:var(--stone-1);
+--surface-card:var(--white);
+--surface-sunken:var(--stone-2);
+--surface-inverse:var(--ink-1);
+--surface-accent:var(--volt-3);
+--surface-quiet:var(--stone-3);
+
+/* --- semantic text --- */
+--text-strong:var(--ink-1);
+--text-body:var(--ink-2);
+--text-muted:var(--stone-6);
+--text-faint:var(--stone-5);
+--text-on-inverse:var(--stone-1);
+--text-on-accent:var(--ink-1);
+--text-link:var(--clay-3);
+
+/* --- lines --- */
+--border-hairline:var(--stone-3);
+--border-strong:var(--ink-1);
+--border-quiet:var(--stone-2);
+
+/* --- wear scale: the core product signal (fresh -> retire) --- */
+--wear-fresh:var(--moss-3);
+--wear-fresh-bg:var(--moss-1);
+--wear-good:var(--volt-4);
+--wear-good-bg:var(--volt-1);
+--wear-worn:var(--amber-2);
+--wear-worn-bg:var(--amber-1);
+--wear-retire:var(--clay-3);
+--wear-retire-bg:var(--clay-1);
+
+/* --- status --- */
+--status-success:var(--moss-3);
+--status-warning:var(--amber-2);
+--status-danger:var(--clay-3);
+--status-info:var(--ink-2);
+--deal-flag:var(--clay-3);
+
+/* --- focus --- */
+--focus-ring:var(--ink-1);
+--focus-halo:rgba(205,239,60,.55);
+}

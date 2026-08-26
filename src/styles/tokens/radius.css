@@ -1,0 +1,12 @@
+:root{
+--radius-none:0;
+--radius-xs:4px;
+--radius-sm:8px;
+--radius-md:14px;
+--radius-lg:20px;
+--radius-xl:28px;
+--radius-pill:999px;
+--radius-card:var(--radius-md);
+--radius-panel:var(--radius-lg);
+--radius-control:var(--radius-pill);
+}
