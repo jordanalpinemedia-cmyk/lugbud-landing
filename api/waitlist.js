@@ -55,6 +55,10 @@ export default async function handler(req, res) {
   try {
     let response = await createContact(contact);
 
+    // Reported back so a silently-dropped property is observable rather than
+    // indistinguishable from success: 'none' (nothing sent), 'saved', 'dropped'.
+    let brandStatus = contact.properties ? 'saved' : 'none';
+
     // Resend rejects the whole request if a custom property is not already
     // defined on the account. Brand is a nice-to-have; the email address is
     // the point. Drop the property and retry rather than lose the signup.
@@ -65,10 +69,11 @@ export default async function handler(req, res) {
       );
       const { properties, ...withoutProperties } = contact;
       response = await createContact(withoutProperties);
+      brandStatus = 'dropped';
     }
 
     if (response.ok) {
-      return res.status(200).json({ ok: true });
+      return res.status(200).json({ ok: true, brand: brandStatus });
     }
 
     const detail = await response.text();
