@@ -33,7 +33,16 @@ const OUTCOMES = {
   },
 };
 
+const meEndpoint = (lifespan, includeHidden) => {
+  const params = new URLSearchParams();
+  if (lifespan) params.set('lifespan', String(lifespan));
+  if (includeHidden) params.set('includeHidden', '1');
+  const query = params.toString();
+  return `/api/strava/me${query ? `?${query}` : ''}`;
+};
+
 export function useStrava({ lifespan } = {}) {
+  const [showHidden, setShowHidden] = useState(false);
   const [state, setState] = useState({
     loading: true,
     connected: false,
@@ -56,7 +65,7 @@ export function useStrava({ lifespan } = {}) {
     }
 
     let cancelled = false;
-    const meUrl = `/api/strava/me${lifespan ? `?lifespan=${lifespan}` : ''}`;
+    const meUrl = meEndpoint(lifespan, showHidden);
 
     fetch(meUrl)
       .then((r) => r.json())
@@ -79,7 +88,7 @@ export function useStrava({ lifespan } = {}) {
     return () => {
       cancelled = true;
     };
-  }, [lifespan]);
+  }, [lifespan, showHidden]);
 
   const connect = () => {
     window.location.href = '/api/strava/start';
@@ -107,9 +116,7 @@ export function useStrava({ lifespan } = {}) {
         setState({ loading: false, connected: false, locker: [], milesThisYear: 0 });
         return;
       }
-      const fresh = await fetch(
-        `/api/strava/me${lifespan ? `?lifespan=${lifespan}` : ''}`,
-      ).then((r) => r.json());
+      const fresh = await fetch(meEndpoint(lifespan, showHidden)).then((r) => r.json());
       setState({
         loading: false,
         syncing: false,
@@ -122,5 +129,44 @@ export function useStrava({ lifespan } = {}) {
     }
   };
 
-  return { ...state, outcome, connect, disconnect, sync, dismissOutcome: () => setOutcome(null) };
+  /**
+   * Hide a pair from the locker, or put it back. Strava is untouched — this
+   * only controls what the locker shows, and it survives syncs.
+   */
+  const setShoeHidden = async (gearId, hidden) => {
+    // Optimistic: the row disappears immediately, which is the whole point.
+    setState((s) => ({
+      ...s,
+      locker: showHidden
+        ? s.locker.map((sh) => (sh.id === gearId ? { ...sh, hidden } : sh))
+        : s.locker.filter((sh) => sh.id !== gearId),
+      hiddenCount: (s.hiddenCount ?? 0) + (hidden ? 1 : -1),
+    }));
+
+    try {
+      const response = await fetch('/api/strava/shoe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gearId, hidden }),
+      });
+      if (!response.ok) throw new Error(String(response.status));
+    } catch (err) {
+      // Put it back rather than leaving the view lying about the server.
+      console.error('could not update shoe visibility', err);
+      const fresh = await fetch(meEndpoint(lifespan, showHidden)).then((r) => r.json());
+      setState((s) => ({ ...s, ...fresh, locker: fresh.locker ?? [] }));
+    }
+  };
+
+  return {
+    ...state,
+    outcome,
+    connect,
+    disconnect,
+    sync,
+    setShoeHidden,
+    showHidden,
+    toggleShowHidden: () => setShowHidden((v) => !v),
+    dismissOutcome: () => setOutcome(null),
+  };
 }

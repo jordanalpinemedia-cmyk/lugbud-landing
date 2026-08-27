@@ -1,5 +1,6 @@
 import Button from '../../ds/core/Button.jsx';
 import Icon from '../../ds/core/Icon.jsx';
+import IconButton from '../../ds/core/IconButton.jsx';
 import SectionHeader from '../../ds/core/SectionHeader.jsx';
 import MileageRow from '../../ds/tracking/MileageRow.jsx';
 import WearMeter, { WEAR_COLOR, WEAR_LABEL, wearStateFor } from '../../ds/tracking/WearMeter.jsx';
@@ -75,7 +76,7 @@ export default function Dashboard({ selected, onSelect, defaultLifespan, strava 
               return (
                 <div
                   key={s.id ?? s.name}
-                  className="lb-locker-row"
+                  className={`lb-locker-row${isLive ? ' lb-locker-row--live' : ''}`}
                   role="button"
                   tabIndex={0}
                   aria-pressed={isSelected}
@@ -114,15 +115,58 @@ export default function Dashboard({ selected, onSelect, defaultLifespan, strava 
                     <div style={monoCaps(10, 'var(--text-muted)', { marginTop: 7 })}>{s.left}</div>
                   </div>
 
-                  <div style={monoCaps(10, WEAR_COLOR[state], { textAlign: 'right', fontWeight: 600 })}>
-                    {WEAR_LABEL[state]}
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'flex-end',
+                      gap: 6,
+                    }}
+                  >
+                    <span style={monoCaps(10, WEAR_COLOR[state], { fontWeight: 600 })}>
+                      {WEAR_LABEL[state]}
+                    </span>
+                    {isLive ? (
+                      <IconButton
+                        icon={s.hidden ? 'plus' : 'x'}
+                        label={s.hidden ? `Restore ${s.name} to the locker` : `Hide ${s.name} from the locker`}
+                        size="sm"
+                        onClick={(e) => {
+                          // The row itself selects a pair; hiding must not.
+                          e.stopPropagation();
+                          strava.setShoeHidden(s.id, !s.hidden);
+                        }}
+                        style={{ flex: 'none', color: 'var(--text-faint)' }}
+                      />
+                    ) : null}
                   </div>
                 </div>
               );
             })}
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 22px' }}>
-              <span style={monoCaps(10, 'var(--text-faint)')}>{milesThisYear} mi logged this year</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+                <span style={monoCaps(10, 'var(--text-faint)')}>{milesThisYear} mi logged this year</span>
+                {isLive && (strava.hiddenCount > 0 || strava.showHidden) ? (
+                  <button
+                    type="button"
+                    onClick={strava.toggleShowHidden}
+                    style={{
+                      ...monoCaps(10, 'var(--text-muted)'),
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer',
+                      textDecoration: 'underline',
+                      textUnderlineOffset: 3,
+                    }}
+                  >
+                    {strava.showHidden
+                      ? 'hide put-away pairs'
+                      : `${strava.hiddenCount} put away · show`}
+                  </button>
+                ) : null}
+              </div>
               {isLive ? (
                 <Button
                   variant="ghost"

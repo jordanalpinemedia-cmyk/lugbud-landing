@@ -80,6 +80,12 @@
   align-items: center;
 }
 
+/* Connected rows carry a hide control beside the wear label. 78px fits the
+   label alone but not label + button — "RETIRE" needs 81px of the 78. */
+.lb-locker-row--live {
+  grid-template-columns: 1fr 152px 112px;
+}
+
 .lb-autofit {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -114,7 +120,8 @@
   .lb-wrap {
     padding: 0 var(--gutter-page);
   }
-  .lb-locker-row {
+  .lb-locker-row,
+  .lb-locker-row--live {
     grid-template-columns: 1fr 110px;
     row-gap: 10px;
   }

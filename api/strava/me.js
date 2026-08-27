@@ -8,12 +8,18 @@ export default async function handler(req, res) {
     if (!athlete) return res.status(200).json({ connected: false });
 
     const lifespan = Number(req.query?.lifespan) || DEFAULT_LIFESPAN;
-    const { locker, milesThisYear } = await buildLocker(athlete.strava_athlete_id, lifespan);
+    const includeHidden = req.query?.includeHidden === '1';
+    const { locker, hiddenCount, milesThisYear } = await buildLocker(
+      athlete.strava_athlete_id,
+      lifespan,
+      { includeHidden },
+    );
 
     return res.status(200).json({
       connected: true,
       firstname: athlete.firstname,
       locker,
+      hiddenCount,
       milesThisYear,
     });
   } catch (err) {

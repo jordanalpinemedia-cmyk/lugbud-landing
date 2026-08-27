@@ -79,3 +79,8 @@ create table if not exists shoe_lifespans (
 );
 
 create index if not exists shoe_lifespans_model_idx on shoe_lifespans (model);
+
+-- Hiding is a LugBud-side concern: Strava has no notion of it, and gear
+-- cannot be deleted through the API. The sync upsert deliberately does not
+-- touch this column, so a hidden shoe stays hidden across syncs.
+alter table shoes add column if not exists hidden boolean not null default false;
