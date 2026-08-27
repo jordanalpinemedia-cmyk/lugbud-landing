@@ -56,10 +56,24 @@ export default function Dashboard({ selected, onSelect, defaultLifespan, strava 
               </div>
 
               {isLive ? (
-                <div style={{ ...monoCaps(10, 'var(--moss-3)'), display: 'flex', alignItems: 'center', gap: 7 }}>
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--moss-3)' }} />
-                  {strava.syncing ? 'syncing…' : 'strava synced'}
-                </div>
+                /*
+                  Required attribution for the Strava data in this panel.
+                  Strava's guidelines say it must sit apart from our own
+                  branding and never appear more prominently than it — hence
+                  the locker panel rather than the site header, and 15px
+                  against the 17px section title. Unmodified: no tint, no
+                  filter, native 365x37 aspect preserved.
+
+                  This replaces a "strava synced" label set in our own type,
+                  which used their name as though it were our own mark.
+                */
+                <img
+                  src="/strava/api_logo_pwrdBy_strava_horiz_black.svg"
+                  alt="Powered by Strava"
+                  width={148}
+                  height={15}
+                  style={{ display: 'block', flex: 'none' }}
+                />
               ) : (
                 <div style={{ ...monoCaps(10, 'var(--text-faint)'), display: 'flex', alignItems: 'center', gap: 7 }}>
                   <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--stone-4)' }} />

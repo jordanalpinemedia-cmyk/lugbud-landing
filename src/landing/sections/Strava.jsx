@@ -82,9 +82,35 @@ export default function Strava({ strava, onJoinWaitlist }) {
               </Button>
             ) : (
               <>
-                <Button variant="accent" size="lg" icon="activity" onClick={connect} disabled={loading}>
-                  Connect with Strava
-                </Button>
+                {/*
+                  Strava's own artwork, unmodified. Their guidelines say
+                  "never modify, alter or animate Strava logos", so the wrapper
+                  carries the interaction — no border, tint, filter or hover
+                  treatment touches the mark itself. The white variant is the
+                  one intended for dark backgrounds.
+                */}
+                <button
+                  type="button"
+                  onClick={connect}
+                  disabled={loading}
+                  aria-label="Connect with Strava"
+                  style={{
+                    padding: 0,
+                    border: 'none',
+                    background: 'none',
+                    lineHeight: 0,
+                    borderRadius: 6,
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  <img
+                    src="/strava/btn_strava_connect_with_white.svg"
+                    alt="Connect with Strava"
+                    width={237}
+                    height={48}
+                    style={{ display: 'block' }}
+                  />
+                </button>
                 <span style={monoCaps(10, 'var(--stone-5)')}>takes about 8 seconds</span>
               </>
             )}
