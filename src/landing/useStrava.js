@@ -9,18 +9,24 @@ import { useEffect, useState } from 'react';
  * 10, and more only after review).
  */
 const OUTCOMES = {
-  connected: null, // handled by the connected view
+  // Success shows no notice — the connected view already says so. This is
+  // null on purpose, which is exactly why the lookup below tests membership
+  // rather than using `??`.
+  connected: null,
   full: {
+    kind: 'full',
     tone: 'notice',
     title: 'The beta is full',
     body: "We're capped on connected athletes while Strava reviews the app. Join the waitlist and we'll open your locker as soon as a slot frees up.",
   },
   denied: {
+    kind: 'denied',
     tone: 'notice',
     title: 'No problem',
     body: 'You cancelled on Strava, so nothing was shared. You can connect any time.',
   },
   error: {
+    kind: 'error',
     tone: 'error',
     title: "That didn't go through",
     body: 'Something broke on the way back from Strava. Worth another try.',
@@ -39,7 +45,10 @@ export function useStrava({ lifespan } = {}) {
   useEffect(() => {
     const flag = new URLSearchParams(window.location.search).get('strava');
     if (flag) {
-      setOutcome(OUTCOMES[flag] ?? OUTCOMES.error);
+      // `??` would treat the deliberate null for 'connected' as an unknown
+      // flag and fall through to the error notice — which is precisely what
+      // it did, showing "that didn't go through" on every success.
+      setOutcome(Object.hasOwn(OUTCOMES, flag) ? OUTCOMES[flag] : OUTCOMES.error);
       // Drop the parameter so a refresh doesn't replay the message.
       const url = new URL(window.location.href);
       url.searchParams.delete('strava');

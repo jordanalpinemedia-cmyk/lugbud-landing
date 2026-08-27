@@ -76,7 +76,7 @@ export default function Strava({ strava, onJoinWaitlist }) {
                   Disconnect
                 </Button>
               </>
-            ) : outcome?.title === 'The beta is full' ? (
+            ) : outcome?.kind === 'full' ? (
               <Button variant="accent" size="lg" iconRight="chevron-right" onClick={onJoinWaitlist}>
                 Join the waitlist
               </Button>
